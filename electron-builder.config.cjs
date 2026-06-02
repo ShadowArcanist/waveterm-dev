@@ -22,7 +22,7 @@ const config = {
         {
             from: "./dist",
             to: "./dist",
-            filter: ["**/*", "!bin/*", "bin/wavesrv.${arch}*", "bin/wsh*", "!tsunamiscaffold/**/*"],
+            filter: ["**/*", "!**/*.map", "!bin/*", "bin/wavesrv.${arch}*", "bin/wsh*", "!tsunamiscaffold/**/*"],
         },
         {
             from: ".",
@@ -45,16 +45,16 @@ const config = {
         "dist/schema/**/*", // schema files for Monaco editor
     ],
     mac: {
+        // Apple Silicon only. A single-arch (arm64) build avoids the universal
+        // (arm64+x64) packaging that would otherwise roughly double the app size.
         target: [
             {
                 target: "dmg",
-                arch: ["arm64", "x64"],
+                arch: ["arm64"],
             },
         ],
         category: "public.app-category.developer-tools",
-        minimumSystemVersion: "10.15.0",
-        mergeASARs: true,
-        singleArchFiles: "**/dist/bin/wavesrv.*",
+        minimumSystemVersion: "11.0.0",
         entitlements: "build/entitlements.mac.plist",
         entitlementsInherit: "build/entitlements.mac.plist",
         extendInfo: {
