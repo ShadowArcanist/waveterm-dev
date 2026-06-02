@@ -72,7 +72,7 @@ function whoImportsTarget(target: string) {
     };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     main: {
         root: ".",
         build: {
@@ -103,7 +103,7 @@ export default defineConfig({
         root: ".",
         build: {
             target: NODE,
-            sourcemap: true,
+            sourcemap: mode !== "production",
             rollupOptions: {
                 input: {
                     index: "emain/preload.ts",
@@ -125,7 +125,7 @@ export default defineConfig({
         root: ".",
         build: {
             target: CHROME,
-            sourcemap: true,
+            sourcemap: mode !== "production",
             outDir: "dist/frontend",
             rollupOptions: {
                 input: {
@@ -185,4 +185,4 @@ export default defineConfig({
             tailwindcss(),
         ],
     },
-});
+}));

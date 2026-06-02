@@ -47,10 +47,6 @@ const config = {
     mac: {
         target: [
             {
-                target: "zip",
-                arch: ["arm64", "x64"],
-            },
-            {
                 target: "dmg",
                 arch: ["arm64", "x64"],
             },

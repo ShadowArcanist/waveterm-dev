@@ -69,11 +69,11 @@ jobs:
                   # No Apple Developer cert in a fork: skip code signing / notarization.
                   CSC_IDENTITY_AUTO_DISCOVERY: "false"
 
-            - name: Upload artifacts
+            - name: Upload artifact (.dmg)
               uses: actions/upload-artifact@v5
               with:
-                  name: wave-macos-arm64
-                  path: |
-                      make/*.dmg
-                      make/*.zip
+                  name: wave-macos-arm64-dmg
+                  path: make/*.dmg
                   if-no-files-found: error
+                  # the .dmg is already compressed; don't waste time re-compressing it
+                  compression-level: 0

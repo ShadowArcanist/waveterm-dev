@@ -6,6 +6,8 @@ version: "3"
 vars:
     APP_NAME: "Wave"
     BIN_DIR: "bin"
+    # strip the symbol table and DWARF debug info from wavesrv to keep the binary small
+    GO_LDFLAGS: "-s -w"
     VERSION:
         sh: node version.cjs
     RMRF: '{{if eq OS "windows"}}powershell -NoProfile -NonInteractive Remove-Item -Force -Recurse -ErrorAction SilentlyContinue{{else}}rm -rf{{end}}'
