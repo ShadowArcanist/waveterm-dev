@@ -56,7 +56,6 @@ import {
 } from "./emain-window";
 import { ElectronWshClient, initElectronWshClient } from "./emain-wsh";
 import { getLaunchSettings } from "./launchsettings";
-import { configureAutoUpdater, updater } from "./updater";
 
 const electronApp = electron.app;
 
@@ -143,28 +142,7 @@ function getActivityDisplays(): ActivityDisplayType[] {
 }
 
 async function sendDisplaysTDataEvent() {
-    const displays = getActivityDisplays();
-    if (displays.length === 0) {
-        return;
-    }
-    const props: TEventProps = {};
-    props["display:count"] = displays.length;
-    props["display:height"] = displays[0].height;
-    props["display:width"] = displays[0].width;
-    props["display:dpr"] = displays[0].dpr;
-    props["display:all"] = displays;
-    try {
-        await RpcApi.RecordTEventCommand(
-            ElectronWshClient,
-            {
-                event: "app:display",
-                props,
-            },
-            { noresponse: true }
-        );
-    } catch (e) {
-        console.log("error sending display tdata event", e);
-    }
+    // Telemetry has been removed from this build; this is now a no-op.
 }
 
 function logActiveState() {
@@ -172,8 +150,6 @@ function logActiveState() {
         const astate = getActivityState();
         const activity: ActivityUpdate = { openminutes: 1 };
         const ww = focusedWaveWindow;
-        const activeTabView = ww?.activeTabView;
-        const isWaveAIOpen = activeTabView?.isWaveAIOpen ?? false;
 
         if (astate.wasInFg) {
             activity.fgminutes = 1;
@@ -187,44 +163,12 @@ function logActiveState() {
         if (termCmdCount > 0) {
             activity.termcommandsrun = termCmdCount;
         }
-        const termCmdRemoteCount = getAndClearTermCommandsRemote();
-        const termCmdWslCount = getAndClearTermCommandsWsl();
-        const termCmdDurableCount = getAndClearTermCommandsDurable();
-
-        const props: TEventProps = {
-            "activity:activeminutes": activity.activeminutes,
-            "activity:fgminutes": activity.fgminutes,
-            "activity:openminutes": activity.openminutes,
-        };
-        if (termCmdCount > 0) {
-            props["activity:termcommandsrun"] = termCmdCount;
-        }
-        if (termCmdRemoteCount > 0) {
-            props["activity:termcommands:remote"] = termCmdRemoteCount;
-        }
-        if (termCmdWslCount > 0) {
-            props["activity:termcommands:wsl"] = termCmdWslCount;
-        }
-        if (termCmdDurableCount > 0) {
-            props["activity:termcommands:durable"] = termCmdDurableCount;
-        }
-        if (astate.wasActive && isWaveAIOpen) {
-            props["activity:waveaiactiveminutes"] = 1;
-        }
-        if (astate.wasInFg && isWaveAIOpen) {
-            props["activity:waveaifgminutes"] = 1;
-        }
+        getAndClearTermCommandsRemote();
+        getAndClearTermCommandsWsl();
+        getAndClearTermCommandsDurable();
 
         try {
             await RpcApi.ActivityCommand(ElectronWshClient, activity, { noresponse: true });
-            await RpcApi.RecordTEventCommand(
-                ElectronWshClient,
-                {
-                    event: "app:activity",
-                    props,
-                },
-                { noresponse: true }
-            );
         } catch (e) {
             console.log("error logging active state", e);
         } finally {
@@ -291,7 +235,6 @@ electronApp.on("before-quit", (e) => {
         return;
     }
     setGlobalIsQuitting(true);
-    updater?.stop();
     if (unamePlatform == "win32") {
         // win32 doesn't have a SIGINT, so we just let electron die, which
         // ends up killing wavesrv via closing it's stdin.
@@ -421,7 +364,6 @@ async function appMain() {
 
     makeAndSetAppMenu();
     makeDockTaskbar();
-    await configureAutoUpdater();
     setGlobalIsStarting(false);
     if (fullConfig?.settings?.["window:maxtabcachesize"] != null) {
         setMaxTabCacheSize(fullConfig.settings["window:maxtabcachesize"]);

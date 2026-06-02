@@ -1,7 +1,6 @@
 // Copyright 2025, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { RpcApi } from "@/app/store/wshclientapi";
 import { TabRpcClient } from "@/app/store/wshrpcutil";
 import {
     getLayoutModelForStaticTab,
@@ -68,12 +67,6 @@ function initGlobalWaveEventSubs(initOpts: WaveInitOpts) {
         },
     });
     waveEventSubscribeSingle({
-        eventType: "waveai:modeconfig",
-        handler: (event) => {
-            globalStore.set(atoms.waveaiModeConfigAtom, event.data.configs);
-        },
-    });
-    waveEventSubscribeSingle({
         eventType: "userinput",
         handler: (event) => {
             // console.log("userinput event handler", event);
@@ -89,12 +82,6 @@ function initGlobalWaveEventSubs(initOpts: WaveInitOpts) {
             if (fileSubject != null) {
                 fileSubject.next(event.data);
             }
-        },
-    });
-    waveEventSubscribeSingle({
-        eventType: "waveai:ratelimit",
-        handler: (event) => {
-            globalStore.set(atoms.waveAIRateLimitInfoAtom, event.data);
         },
     });
     setupBadgesSubscription();
@@ -665,13 +652,9 @@ function setActiveTab(tabId: string) {
     getApi().setActiveTab(tabId);
 }
 
-function recordTEvent(event: string, props?: TEventProps) {
-    if (isPreviewWindow()) return;
-    if (props == null) {
-        props = {};
-    }
-    RpcApi.RecordTEventCommand(TabRpcClient, { event, props }, { noresponse: true });
-}
+// Telemetry has been removed from this build. recordTEvent is retained as an
+// inert no-op so existing call sites keep working without transmitting anything.
+function recordTEvent(event: string, props?: Record<string, any>) {}
 
 export {
     atoms,

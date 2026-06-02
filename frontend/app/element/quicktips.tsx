@@ -295,45 +295,6 @@ const QuickTips = () => {
                             Join Our Discord
                         </a>
                     </div>
-                    <div className="flex items-center gap-3 p-3 rounded-md bg-black/20 hover:bg-black/30 transition-colors cursor-pointer">
-                        <IconBox variant="secondary">
-                            <i className="fa-solid fa-sharp fa-sliders fa-fw" />
-                        </IconBox>
-                        <a
-                            target="_blank"
-                            href="https://docs.waveterm.dev/config"
-                            rel="noopener"
-                            className="hover:text-accent-400 hover:underline transition-colors font-medium"
-                        >
-                            Configuration Options
-                        </a>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 rounded-md bg-black/20 hover:bg-black/30 transition-colors cursor-pointer">
-                        <IconBox variant="secondary">
-                            <i className="fa-solid fa-sharp fa-keyboard fa-fw" />
-                        </IconBox>
-                        <a
-                            target="_blank"
-                            href="https://docs.waveterm.dev/keybindings"
-                            rel="noopener"
-                            className="hover:text-accent-400 hover:underline transition-colors font-medium"
-                        >
-                            All Keybindings
-                        </a>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 rounded-md bg-black/20 hover:bg-black/30 transition-colors cursor-pointer">
-                        <IconBox variant="secondary">
-                            <i className="fa-solid fa-sharp fa-book fa-fw" />
-                        </IconBox>
-                        <a
-                            target="_blank"
-                            href="https://docs.waveterm.dev"
-                            rel="noopener"
-                            className="hover:text-accent-400 hover:underline transition-colors font-medium"
-                        >
-                            Full Documentation
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

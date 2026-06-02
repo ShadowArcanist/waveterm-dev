@@ -1,22 +1,24 @@
-// Copyright 2025, Command Line Inc.
+// Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { NewInstallOnboardingModal } from "@/app/onboarding/onboarding";
-import { CurrentOnboardingVersion } from "@/app/onboarding/onboarding-common";
-import { UpgradeOnboardingModal } from "@/app/onboarding/onboarding-upgrade";
 import { ClientModel } from "@/app/store/client-model";
 import { globalStore } from "@/app/store/jotaiStore";
-import { atoms, globalPrimaryTabStartup } from "@/store/global";
+import * as services from "@/app/store/services";
+import { atoms } from "@/store/global";
 import { modalsModel } from "@/store/modalmodel";
+import { fireAndForget } from "@/util/util";
 import * as jotai from "jotai";
 import { useEffect } from "react";
-import * as semver from "semver";
 import { getModalComponent } from "./modalregistry";
+
+// Guard so the first-launch bootstrap runs at most once per session. AgreeTos ->
+// BootstrapStarterLayout is NOT idempotent (it re-applies the starter layout), and this
+// effect can otherwise fire multiple times (React StrictMode, or clientData changing before
+// the tosagreed flag round-trips back through WOS), which would duplicate the starter blocks.
+let tosAgreeRequested = false;
 
 const ModalsRenderer = () => {
     const clientData = jotai.useAtomValue(ClientModel.getInstance().clientAtom);
-    const [newInstallOnboardingOpen, setNewInstallOnboardingOpen] = jotai.useAtom(modalsModel.newInstallOnboardingOpen);
-    const [upgradeOnboardingOpen, setUpgradeOnboardingOpen] = jotai.useAtom(modalsModel.upgradeOnboardingOpen);
     const [modals] = jotai.useAtom(modalsModel.modalsAtom);
     const rtn: React.ReactElement[] = [];
     for (const modal of modals) {
@@ -25,30 +27,14 @@ const ModalsRenderer = () => {
             rtn.push(<ModalComponent key={modal.displayName} {...modal.props} />);
         }
     }
-    if (newInstallOnboardingOpen) {
-        rtn.push(<NewInstallOnboardingModal key={NewInstallOnboardingModal.displayName} />);
-    }
-    if (upgradeOnboardingOpen) {
-        rtn.push(<UpgradeOnboardingModal key={UpgradeOnboardingModal.displayName} />);
-    }
+    // Onboarding has been removed. On first launch we silently bootstrap the
+    // starter layout (this is what ToS agreement used to do) with no wizard.
     useEffect(() => {
-        if (!clientData.tosagreed) {
-            setNewInstallOnboardingOpen(true);
+        if (!clientData.tosagreed && !tosAgreeRequested) {
+            tosAgreeRequested = true;
+            fireAndForget(() => services.ClientService.AgreeTos());
         }
     }, [clientData]);
-
-    useEffect(() => {
-        if (!globalPrimaryTabStartup) {
-            return;
-        }
-        if (!clientData.tosagreed) {
-            return;
-        }
-        const lastVersion = clientData.meta?.["onboarding:lastversion"] ?? "v0.0.0";
-        if (semver.lt(lastVersion, CurrentOnboardingVersion)) {
-            setUpgradeOnboardingOpen(true);
-        }
-    }, []);
     useEffect(() => {
         globalStore.set(atoms.modalOpen, rtn.length > 0);
     }, [rtn]);

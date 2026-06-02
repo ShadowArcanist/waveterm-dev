@@ -26,15 +26,8 @@ function isTermViewModel(viewModel: ViewModel): viewModel is TermViewModel {
 }
 
 function LearnMoreButton() {
-    const waveEnv = useWaveEnv<BlockEnv>();
-    return (
-        <button
-            className="text-muted text-xs hover:underline cursor-pointer text-left"
-            onClick={() => waveEnv.electron.openExternal("https://docs.waveterm.dev/durable-sessions")}
-        >
-            Learn More
-        </button>
-    );
+    // External docs link removed; rendered as nothing to keep call sites intact.
+    return null;
 }
 
 interface StandardSessionContentProps {

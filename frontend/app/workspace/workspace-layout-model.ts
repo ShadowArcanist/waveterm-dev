@@ -1,7 +1,6 @@
 // Copyright 2026, Command Line Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { WaveAIModel } from "@/app/aipanel/waveai-model";
 import { globalStore } from "@/app/store/jotaiStore";
 import { isBuilderWindow } from "@/app/store/windowtype";
 import * as WOS from "@/app/store/wos";
@@ -143,13 +142,10 @@ class WorkspaceLayoutModel {
 
     private initializeFromMeta(): void {
         try {
-            const savedVisible = globalStore.get(this.getPanelOpenAtom());
             const savedAIWidth = globalStore.get(this.getPanelWidthAtom());
             const savedVTabWidth = globalStore.get(this.getVTabBarWidthAtom());
-            if (savedVisible != null) {
-                this.aiPanelVisible = savedVisible;
-                globalStore.set(this.panelVisibleAtom, savedVisible);
-            }
+            // AI panel is removed: never restore its visibility from saved meta, otherwise an
+            // empty (unrendered) panel would reserve horizontal space. Keep it always collapsed.
             if (savedAIWidth != null) {
                 this.aiPanelWidth = savedAIWidth;
             }
@@ -405,14 +401,7 @@ class WorkspaceLayoutModel {
         this.syncPanelCollapse();
         this.commitLayouts(window.innerWidth);
 
-        if (visible) {
-            if (!opts?.nofocus) {
-                this.focusTimeoutRef = setTimeout(() => {
-                    WaveAIModel.getInstance().focusInput();
-                    this.focusTimeoutRef = null;
-                }, 350);
-            }
-        } else {
+        if (!visible) {
             const layoutModel = getLayoutModelForStaticTab();
             const focusedNode = globalStore.get(layoutModel.focusedNode);
             if (focusedNode == null) {

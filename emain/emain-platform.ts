@@ -46,24 +46,13 @@ export function checkIfRunningUnderARM64Translation(fullConfig: FullConfigType) 
         console.log("Running under ARM64 translation, alerting user");
         const dialogOpts: Electron.MessageBoxOptions = {
             type: "warning",
-            buttons: ["Dismiss", "Learn More"],
+            buttons: ["Dismiss"],
             title: "Wave has detected a performance issue",
-            message: `Wave is running in ARM64 translation mode which may impact performance.\n\nRecommendation: Download the native ARM64 version from our website for optimal performance.`,
+            message: `Wave is running in ARM64 translation mode which may impact performance.\n\nRecommendation: install the native ARM64 build for optimal performance.`,
         };
 
-        const choice = dialog.showMessageBoxSync(null, dialogOpts);
-        if (choice === 1) {
-            // Open the documentation URL
-            console.log("User chose to learn more");
-            fireAndForget(() =>
-                shell.openExternal(
-                    "https://docs.waveterm.dev/faq#why-does-wave-warn-me-about-arm64-translation-when-it-launches"
-                )
-            );
-            throw new Error("User redirected to docsite to learn more about ARM64 translation, exiting");
-        } else {
-            console.log("User dismissed the dialog");
-        }
+        dialog.showMessageBoxSync(null, dialogOpts);
+        console.log("User dismissed the dialog");
     }
 }
 
